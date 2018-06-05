@@ -1,0 +1,213 @@
+<<<<<<< HEAD
+! Welcome to GOLD Parser Builder 5.2
+
+!characters---------------------------------
+
+newline        = {All NewLine}
+!unicode_char   = 
+unicode_letter = {Letter}
+unicode_digit  = {Digit}
+
+
+
+<letter> ::= unicode_letter | '_' 
+decimal_digit = {Number}
+octal_digit = {Oct Digit}
+hex_digit = {Digit} + [abcdef]
+ 
+!Identifier-------------             
+<Identifier> ::= <letter> <letter> | <letter> unicode_digit
+           
+!Keywords-----------------------------------
+
+<Keywords> ::= 'break' | 'default' | 'func' | 'interface' | 'select' | 'case' | 'defer' | 'go'
+            | 'map' | 'struct' | 'chan' | 'else' | 'goto' | 'package' | 'switch' | 'const' | 'fallthrough'
+            | 'if' | 'range' | 'type' | 'continue' | 'for' | 'import' | 'return' | 'var'
+            
+!operators----------------------------------------
+
+<Expression> ::= <UnaryExpr> | <Expression> <binary_op> <Expression> 
+<UnaryExpr>  ::= <PrimaryExpr> | <unary_op> <UnaryExpr>
+
+<binary_op>  ::= '||' | '&&' | <rel_op> | <add_op> | <mul_op>
+<rel_op>     ::= '==' | '!=' | '<' | '<=' | '>'| '>=' 
+<add_op>     ::= '+' | '-' | '|' | '^' 
+<mul_op>     ::= '*' | '/' | '%' | '<<' | '>>' | '&' | '&^' 
+
+<unary_op>   ::= '+' | '-' | '!' | '^' | '*' | '&' | '<-'
+              
+!assigments--------------------------------------------
+
+<Assignment> ::= <ExpressionList> assign_op <ExpressionList> 
+
+assign_op = add_op '=' | mul_op '=' | '='
+          
+
+           
+!intiger literals----------------------------
+<int_lit>     ::= <decimal_lit> | <octal_lit> | <hex_lit> 
+<decimal_lit> ::= decimal_digit decimal_digit | decimal_digit 
+<octal_lit>   ::= '0'  <octal_lit> octal_digit  
+<hex_lit>     ::= '0' xs hex_digit | <hex_lit> hex_digit 
+               
+xs = 'x' | 'X'
+            
+!floating-point--------------------------------
+
+
+<float_lit> ::= <decimals> '.' <decimals>  <exponent>  |  <decimals> '.' <decimals> |  <decimals> '.'  <exponent> 
+           | <decimals> <exponent> | '.' <decimals> <exponent> |  '.' <decimals>  
+<decimals>  ::= decimal_digit <decimals> decimal_digit | decimal_digit
+<exponent>  ::= 'e' '+' <decimals>
+             | 'E' '+' <decimals> 
+             |'e' '-' <decimals>
+             |'E' '-' <decimals>
+             |'e' <decimals>
+             |'E' <decimals>
+       
+
+!imaginary literals------------------------------
+
+<imaginary_lit> ::= <decimals> 'i' | <float_lit> 'i'
+
+
+!Rune literals-----------------------------------
+
+<rune_lit> ::= ''' <unicode_value> ''' | ''' <byte_value> ''' 
+<unicode_value> ::= unicode_char | <little_u_value> | <big_u_value> | <escaped_char> 
+<byte_value> ::= <octal_byte_value> | <hex_byte_value> 
+<octal_byte_value> ::= '\' octal_digit octal_digit octal_digit 
+<hex_byte_value> ::= '\' 'x' hex_digit hex_digit 
+<little_u_value> ::= '\' 'u' hex_digit hex_digit hex_digit hex_digit
+<big_u_value> ::= '\' 'U' hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit 
+                         
+<escaped_char> ::= '\' 'a' 
+                | '\' 'b' 
+                | '\' 'f' 
+                | '\' 'n' 
+                | '\' 'r' 
+                | '\' 't' 
+                | '\' 'v' 
+                | '\' '\' 
+                | '\' '"'
+!   | '\' ''' 
+!String literals--------------------------------------
+
+<string_lit> ::= <raw_string_lit> | <interpreted_string_lit> 
+<raw_string_lit> ::=   <raw_string_lit> unicode_char '`' | <raw_string_lit> newline '`' | '`'
+<interpreted_string_lit> ::= '"' <interpreted_string_lit> <unicode_value> '"' 
+                          | '"' <interpreted_string_lit> <byte_value>  '"' | '"''"'
+                          
+
+!Expressions ------------------------------------------------------------------
+
+
+
+
+=======
+! Welcome to GOLD Parser Builder 5.2
+
+!characters---------------------------------
+
+newline        = {All NewLine}
+!unicode_char   = 
+unicode_letter = {Letter}
+unicode_digit  = {Digit}
+
+
+
+<letter> ::= unicode_letter | '_' 
+decimal_digit = {Number}
+octal_digit = {Oct Digit}
+hex_digit = {Digit} + [abcdef]
+ 
+!Identifier-------------             
+<Identifier> ::= <letter> <letter> | <letter> unicode_digit
+           
+!Keywords-----------------------------------
+
+<Keywords> ::= 'break' | 'default' | 'func' | 'interface' | 'select' | 'case' | 'defer' | 'go'
+            | 'map' | 'struct' | 'chan' | 'else' | 'goto' | 'package' | 'switch' | 'const' | 'fallthrough'
+            | 'if' | 'range' | 'type' | 'continue' | 'for' | 'import' | 'return' | 'var'
+            
+!operators----------------------------------------
+
+<Expression> ::= <UnaryExpr> | <Expression> <binary_op> <Expression> 
+<UnaryExpr>  ::= <PrimaryExpr> | <unary_op> <UnaryExpr>
+
+<binary_op>  ::= '||' | '&&' | <rel_op> | <add_op> | <mul_op>
+<rel_op>     ::= '==' | '!=' | '<' | '<=' | '>'| '>=' 
+<add_op>     ::= '+' | '-' | '|' | '^' 
+<mul_op>     ::= '*' | '/' | '%' | '<<' | '>>' | '&' | '&^' 
+
+<unary_op>   ::= '+' | '-' | '!' | '^' | '*' | '&' | '<-'
+              
+!assigments--------------------------------------------
+
+<Assignment> ::= <ExpressionList> assign_op <ExpressionList> 
+
+assign_op = add_op '=' | mul_op '=' | '='
+          
+
+           
+!intiger literals----------------------------
+<int_lit>     ::= <decimal_lit> | <octal_lit> | <hex_lit> 
+<decimal_lit> ::= decimal_digit decimal_digit | decimal_digit 
+<octal_lit>   ::= '0'  <octal_lit> octal_digit  
+<hex_lit>     ::= '0' xs hex_digit | <hex_lit> hex_digit 
+               
+xs = 'x' | 'X'
+            
+!floating-point--------------------------------
+
+
+<float_lit> ::= <decimals> '.' <decimals>  <exponent>  |  <decimals> '.' <decimals> |  <decimals> '.'  <exponent> 
+           | <decimals> <exponent> | '.' <decimals> <exponent> |  '.' <decimals>  
+<decimals>  ::= decimal_digit <decimals> decimal_digit | decimal_digit
+<exponent>  ::= 'e' '+' <decimals>
+             | 'E' '+' <decimals> 
+             |'e' '-' <decimals>
+             |'E' '-' <decimals>
+             |'e' <decimals>
+             |'E' <decimals>
+       
+
+!imaginary literals------------------------------
+
+<imaginary_lit> ::= <decimals> 'i' | <float_lit> 'i'
+
+
+!Rune literals-----------------------------------
+
+<rune_lit> ::= ''' <unicode_value> ''' | ''' <byte_value> ''' 
+<unicode_value> ::= unicode_char | <little_u_value> | <big_u_value> | <escaped_char> 
+<byte_value> ::= <octal_byte_value> | <hex_byte_value> 
+<octal_byte_value> ::= '\' octal_digit octal_digit octal_digit 
+<hex_byte_value> ::= '\' 'x' hex_digit hex_digit 
+<little_u_value> ::= '\' 'u' hex_digit hex_digit hex_digit hex_digit
+<big_u_value> ::= '\' 'U' hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit 
+                         
+<escaped_char> ::= '\' 'a' 
+                | '\' 'b' 
+                | '\' 'f' 
+                | '\' 'n' 
+                | '\' 'r' 
+                | '\' 't' 
+                | '\' 'v' 
+                | '\' '\' 
+                | '\' '"'
+!   | '\' ''' 
+!String literals--------------------------------------
+
+<string_lit> ::= <raw_string_lit> | <interpreted_string_lit> 
+<raw_string_lit> ::=   <raw_string_lit> unicode_char '`' | <raw_string_lit> newline '`' | '`'
+<interpreted_string_lit> ::= '"' <interpreted_string_lit> <unicode_value> '"' 
+                          | '"' <interpreted_string_lit> <byte_value>  '"' | '"''"'
+                          
+
+!Expressions ------------------------------------------------------------------
+
+
+
+
+>>>>>>> 8cbc3d71c697764d94e4a0bf7f80f04c3a798c23
