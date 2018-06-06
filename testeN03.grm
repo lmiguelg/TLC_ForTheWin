@@ -1,0 +1,341 @@
+﻿
+!characters---------------------------------
+
+newline        = {All NewLine}
+!unicode_char   = 
+unicode_letter = {Letter}
+unicode_digit  = {Digit}
+
+
+
+<letter> ::= unicode_letter | '_' 
+decimal_digit = {Number}
+{OctalDigit} = [01234567]
+hex_digit = {Digit} + [abcdef]
+ 
+!Identifier-------------             
+<Identifier> ::= <letter> <letter> | <letter> unicode_digit
+           
+!Keywords-----------------------------------
+
+<Keywords> ::= 'break' | 'default' | 'func' | 'interface' | 'select' | 'case' | 'defer' | 'go'
+            | 'map' | 'struct' | 'chan' | 'else' | 'goto' | 'package' | 'switch' | 'const' | 'fallthrough'
+            | 'if' | 'range' | 'type' | 'continue' | 'for' | 'import' | 'return' | 'var'
+            
+!operators----------------------------------------
+
+<Expression> ::= <UnaryExpr> | <Expression> <binary_op> <Expression> 
+<UnaryExpr>  ::= <PrimaryExpr> | <unary_op> <UnaryExpr>
+
+<binary_op>  ::= '||' | '&&' | <rel_op> | <add_op> | <mul_op>
+<rel_op>     ::= '==' | '!=' | '<' | '<=' | '>'| '>=' 
+<add_op>     ::= '+' | '-' | '|' | '^' 
+<mul_op>     ::= '*' | '/' | '%' | '<<' | '>>' | '&' | '&^' 
+
+<unary_op>   ::= '+' | '-' | '!' | '^' | '*' | '&' | '<-'
+              
+!assigments--------------------------------------------
+
+<Assignment> ::= <ExpressionList> assign_op <ExpressionList> 
+
+assign_op = add_op '=' | mul_op '=' | '='
+          
+
+           
+!intiger literals----------------------------
+<int_lit>     ::= <decimal_lit> | <octal_lit> | <hex_lit> 
+<decimal_lit> ::= decimal_digit decimal_digit | decimal_digit 
+<octal_lit>   ::= '0'  <octal_lit> octal_digit  
+<hex_lit>     ::= '0' xs hex_digit | <hex_lit> hex_digit 
+               
+xs = 'x' | 'X'
+            
+!floating-point--------------------------------
+
+
+<float_lit> ::= <decimals> '.' <decimals>  <exponent>  |  <decimals> '.' <decimals> |  <decimals> '.'  <exponent> 
+           | <decimals> <exponent> | '.' <decimals> <exponent> |  '.' <decimals>  
+<decimals>  ::= decimal_digit <decimals> decimal_digit | decimal_digit
+<exponent>  ::= 'e' '+' <decimals>
+             !| 'E' '+' <decimals> 
+             |'e' '-' <decimals>
+             !|'E' '-' <decimals>
+             |'e' <decimals>
+            ! |'E' <decimals>
+       
+
+!imaginary literals------------------------------
+
+<imaginary_lit> ::= <decimals> 'i' | <float_lit> 'i'
+
+
+!Rune literals-----------------------------------
+
+<rune_lit> ::= ''' <unicode_value> ''' | ''' <byte_value> ''' 
+<unicode_value> ::= unicode_char | <little_u_value> | <big_u_value> | <escaped_char> 
+<byte_value> ::= <octal_byte_value> | <hex_byte_value> 
+<octal_byte_value> ::= '\' octal_digit octal_digit octal_digit 
+<hex_byte_value> ::= '\' 'x' hex_digit hex_digit 
+<little_u_value> ::= '\' 'u' hex_digit hex_digit hex_digit hex_digit
+<big_u_value> ::= '\' 'U' hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit 
+                         
+<escaped_char> ::= '\' 'a' 
+                | '\' 'b' 
+                | '\' 'f' 
+                | '\' 'n' 
+                | '\' 'r' 
+                | '\' 't' 
+                | '\' 'v' 
+                | '\' '\' 
+                | '\' '"'
+!   | '\' ''' 
+!String literals--------------------------------------
+
+<string_lit> ::= <raw_string_lit> | <interpreted_string_lit> 
+<raw_string_lit> ::=   <raw_string_lit> unicode_char '`' | <raw_string_lit> newline '`' | '`'
+<interpreted_string_lit> ::= '"' <interpreted_string_lit> <unicode_value> '"' 
+                          | '"' <interpreted_string_lit> <byte_value>  '"' | '"''"'
+                          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+!types-----------------------------
+<Type> ::= <TypeName> | <TypeLit> | '(' <Type> ')'
+<TypeName> ::= <identifier> | <QualifiedIdent>         
+<TypeLit> ::= <ArrayType> 
+           | <StructType> 
+           | <PointerType> 
+           | <FunctionType> 
+           | <InterfaceType> 
+           | <SliceType> 
+           | <MapType> 
+           | <ChannelType>
+
+!Array type---------------------------------------------
+<ArrayType> ::= '[' <ArrayLength> ']' <ElementType>             
+<ArrayLength> ::= <Expression>                
+<ElementType> ::= <Type>
+               
+!Struct type------------------------------------------------
+<StructType> ::= 'struct' '{' '}' | 'struct' '{' <StructType> <FieldDecl>';'  '}'           
+<FieldDecl>  ::= <IdentifierList> <Type> | <EmbeddedField> <Tag> | <EmbeddedField> 
+<EmbeddedField> ::= '*' <TypeName> | <TypeName> 
+<Tag> ::= <string_lit>
+       
+!Pointer---------------------------------------------------------
+<PointerType> ::= '*' <BaseType>             
+<BaseType>    ::= <Type> 
+                           
+!Function type-------------------------------------------------
+<FunctionType>   ::= 'func' <Signature>                  
+<Signature>      ::= <Parameters> <Result> | <Parameters>
+<Result>         ::= <Parameters> | <Type> 
+<Parameters>     ::= '(' <ParameterList> ',' ')'|'('<ParameterList>')' |'(' ')'
+<ParameterList>  ::= <ParameterDecl>  | <ParameterList> <ParameterDecl>  ',' <ParameterDecl>
+<ParameterDecl>  ::= <Type> | <IdentifierList> '...'  <Type> | '...' <Type> | <IdentifierList> <Type> 
+               
+               
+!QualifiedIdent-----------------------------------------
+<QualifiedIdent> ::= <PackageName> '.' <identifier> 
+
+!type definitions------------------------------------------
+<TypeDef> ::= <identifier> <Type>
+
+
+!Interface-Types--------------------------------------------------
+<InterfaceType> ::= 'interface' '{''}'| <InterfaceType> 'interface' '{' <MethodSpec> ';' '}' 
+<MethodSpec> ::= <MethodName> <Signature> | <InterfaceTypeName> 
+<MethodName> ::= <identifier>
+<InterfaceTypeName> ::= <TypeName> 
+                     
+!SLice types-------------------------------------------------
+<SliceType> ::= '[' ']' <ElementType>
+
+
+!Map types--------------------------------------------------
+<MapType> ::= 'map' '[' <KeyType> ']' <ElementType> 
+<KeyType> ::= <Type>
+           
+
+!channel Type-----------------------------------------------
+<ChannelType> ::= 'chan' | 'chan' '<-' | '<-' 'chan' <ElementType>
+               
+!Blocks-----------------------------------------------------
+<Block> ::= '{' <StatementList> '}'
+<StatementList> ::= | <StatementList> <Statement>';' !ver se a barra dá errro--------------------------------------
+
+
+!declarations anda Scope------------------------------------------------
+<Declaration>   ::= <ConstDecl> | <TypeDecl> | <VarDecl> 
+<TopLevelDecl>  ::= <Declaration> | <FunctionDecl> | <MethodDecl>
+                 
+!Constant declarations-----------------------------------------------------
+<ConstDecl>      ::= 'const' ConstSpec | '('')' |'('  <ConstDecl> <ConstSpec>';'  ')' 
+<ConstSpec>      ::= <IdentifierList> 
+                  | <IdentifierList> <Type> '=' <ExpressionList> 
+                  | <IdentifierList> '=' <ExpressionList>
+<IdentifierList> ::= <identifier> | <IdentifierList> <identifier> ',' <identifier> 
+<ExpressionList> ::= <Expression> | <ExpressionList> <Expression> ',' <Expression> 
+
+!Type declarations------------------------------------------------------
+<TypeDecl> ::= 'type'  <TypeSpec> 
+            | '('')'
+            | <TypeDecl>'(' <TypeSpec> ';' ')'
+<TypeSpec> ::= <AliasDecl> | <TypeDef> 
+            
+!Alias declaration-------------------------------------------
+<AliasDecl> ::= <identifier> '=' <Type> 
+             
+!Variable declaration--------------------------------------------
+<VarDecl> ::= 'var' <VarSpec> |'('')'|<VarDecl> '(' <VarSpec> ';' ')'
+<VarSpec> ::= <IdentifierList> <Type> 
+           | <IdentifierList> <Type>  '=' <ExpressionList> 
+           | '=' <ExpressionList> 
+            
+!Short variable declation--------------------------------------------
+<ShortVarDecl> ::= <IdentifierList> ':=' <ExpressionList> 
+
+!Function declaration-----------------------------------------------
+<FunctionDecl> ::= 'func' <FunctionName> <Signature> <FunctionBody>
+                |'func' <FunctionName> <Signature>
+<FunctionName> ::= <identifier>
+<FunctionBody> ::= <Block> 
+                
+!Method declaration ------------------------------------------------------
+<MethodDecl> ::= 'func' <Receiver> <MethodName> <Signature> <FunctionBody>
+              |'func' <Receiver> <MethodName> <Signature>
+<Receiver> ::= <Parameters> 
+            
+!Expressions--------------------------------------------------------------
+!Operands-----------------------------------------------------------------
+<Operand> ::= <Literal> | <OperandName> | '(' <Expression> ')' 
+<Literal> ::= <BasicLit> | <CompositeLit> | <FunctionLit> 
+<BasicLit> ::= <int_lit> | <float_lit> | <imaginary_lit> 
+            | <rune_lit> | <string_lit>
+<OperandName>::= <identifier> | <QualifiedIdent>
+              
+
+                  
+!Composite literals--------------------------------------------------------
+<CompositeLit>  ::= <LiteralType> <LiteralValue> 
+<LiteralType>   ::= <StructType> | <ArrayType> | '[' '...' ']' <ElementType> 
+                 | <SliceType> |<MapType> | <TypeName>
+<LiteralValue> ::= '{' '}' |'{' <ElementList>  '}'|'{' <ElementList> ',' '}' 
+<ElementList> ::= <KeyedElement> | <ElementList> <KeyedElement> ',' <KeyedElement>
+<KeyedElement> ::= <Element> | <KeyedElement> <Key> ':' <Element>
+<Key> ::= <FieldName> | <Expression> | <LiteralValue> 
+<FieldName> ::= <identifier>
+<Element> ::= <Expression> | <LiteralValue> 
+           
+!Functon literals----------------------------------------------------------
+<FunctionLit> ::= 'func' <Signature> <FunctionBody>
+               
+!Primary Expressions---------------------------------------------------------
+<PrimaryExpr> ::= <Operand> | <Conversion> | <MethodExpr> 
+               | <PrimaryExpr> <Selector> |<PrimaryExpr> <Index> |<PrimaryExpr> <Slice> 
+               |<PrimaryExpr> <TypeAssertion> |<PrimaryExpr> <Arguments>
+
+<Selector> ::= '.' <identifier>
+<Index> ::= '[' <Expression> ']'
+<Slice> ::= '[' <Expression>  ':' <Expression> ']' | '['  <Expression> ':' <Expression> ':' <Expression> ']'              
+<TypeAssertion> ::= '.' '(' <Type> ')'
+
+!<Arguments> ::= '(' <ExpressionList> | <Type>  ',' <ExpressionList> '...' ',' ')' 
+!             | '(' ')'
+!             |'('  <ExpressionList> ')'
+!             |'('  <ExpressionList> | <Type> [ "," ExpressionList ] ) [ "..." ] [ "," ] ]')'
+!             |'(' [  ExpressionList | Type [ ',' ExpressionList ]   [ ',' ] ] ')'
+!             |'(' [  ExpressionList | Type [ ',' ExpressionList ]  [ '...' ]  ] ')'
+
+
+!Selectors----------------------------------------------------------------------
+!.
+!.
+!.
+
+!Method expressions------------------------------------------------------------
+<MethodExpr> ::= <ReceiverType> '.' <MethodName>
+<ReceiverType> ::= <Type> 
+                
+!Convertiosn---------------------------------------------------------------------
+<Conversion> ::= <Type> '(' <Expression> ')'| <Type> '(' <Expression> ',' ')'
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+!Package---------------------------------------------------
+!Source file organization-----------------------------------
+<SourceFile> ::= <PackageClause> ';'
+              | <PackageClause> ';' <SourceFile> <ImportDecl> ';' <SourceFile> <TopLevelDecl> ';' 
+              |<PackageClause> ';' <SourceFile> <ImportDecl> ';'
+              |<PackageClause> ';' <SourceFile> <SourceFile><TopLevelDecl> ';'
+              
+!Package clause---------------------------------------------
+<PackageClause> ::= 'package' <PackageName>
+<PackageName> ::= <identifier>
+               
+!Import eclarations--------------------------------------------
+<ImportDecl> ::= 'import' <ImportSpec> | <ImportDecl>'(' <ImportSpec> ';' ')'
+<ImportSpec> ::=  '.' | <PackageName> <ImportPath>
+              |<ImportPath>
+<ImportPath> ::= <string_lit> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
