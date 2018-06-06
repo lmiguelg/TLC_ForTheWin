@@ -1,0 +1,62 @@
+"Start Symbol" = <S>
+      
+<S> ::= <Expression> 
+!characters---------------------------------
+{WS} = {Whitespace} - {CR} - {LF}
+Whitespace = {WS}+
+           
+newline = {All NewLine}
+!unicode_char   = 
+unicode_letter = {Letter}
+unicode_digit  = {Digit}
+
+<letter> ::= unicode_letter | '_' 
+{decimal_digit} = {Number}
+{OctalDigit} = [01234567]
+hex_digit = {Digit} + [abcdef]
+ 
+!Identifier-------------             
+<Identifier> ::= <letter> <letter> | <letter> unicode_digit
+     
+!Keywords-----------------------------------
+
+<Keywords> ::= 'break' | 'default' | 'func' | 'interface' | 'select' | 'case' | 'defer' | 'go'
+            | 'map' | 'struct' | 'chan' | 'else' | 'goto' | 'package' | 'switch' | 'const' | 'fallthrough'
+            | 'if' | 'range' | 'type' | 'continue' | 'for' | 'import' | 'return' | 'var'
+            
+!operators----------------------------------------
+
+<Expression> ::= <UnaryExpr> | <Expression> <binary_op> <Expression> 
+<UnaryExpr>  ::= <PrimaryExpr> | <unary_op> <UnaryExpr>
+
+<binary_op>  ::= '||' | '&&' | <rel_op> | <add_op> | <mul_op>
+<rel_op>     ::= '==' | '!=' | '<' | '<=' | '>'| '>=' 
+<add_op>     ::= '+' | '-' | '|' | '^' 
+<mul_op>     ::= '*' | '/' | '%' | '<<' | '>>' | '&' | '&^' 
+
+<unary_op>   ::= '+' | '-' | '!' | '^' | '*' | '&' | '<-'
+              
+!assigments--------------------------------------------
+
+<Assignment> ::= <ExpressionList> assign_op <ExpressionList> 
+
+assign_op = add_op '=' | mul_op '=' | '='
+
+
+          
+!intiger literals----------------------------
+<int_lit>     ::= <decimal_lit> | <octal_lit> | <hex_lit> 
+<decimal_lit> ::= decimal_digit decimal_digit | decimal_digit 
+<octal_lit>   ::= '0' <octal_lit> OctalDigit  | '0' 
+<hex_lit>     ::= '0' <xs> hex_digit | '0' <xs> hex_digit  <hex_lit> hex_digit 
+               
+<xs> ::= 'x' 
+
+
+
+!vazios_______________________________________________________
+
+<PrimaryExpr>::=
+              
+<ExpressionList> ::=
+
