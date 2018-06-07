@@ -1,0 +1,526 @@
+﻿"Start Symbol" = <S>
+      
+<S> ::= <Expression> 
+! +significa que terminal aparece 1 ou mais vezes  
+! *0 ou mais
+! ?opcional 0 ou 1  
+!characters---------------------------------
+{WS} = {Whitespace} - {CR} - {LF}
+Whitespace = {WS}+
+           
+newline = {All NewLine}
+unicode_char   = {Alphanumeric} + [_]
+unicode_letter = {Letter}+
+               
+unicode_digit  = {Digit}
+               
+numeros = [123456789]
+
+<letter> ::= unicode_letter | '_' 
+{decimal_digit} = {Number}
+
+
+ 
+!Identifier-------------             
+<Identifier> ::= <letter> <seq_letter>
+
+<seq_letter> ::= <seq_letter> <esc> | 
+              
+<esc> ::= <letter> unicode_digit
+     
+!Keywords-----------------------------------
+
+<Keywords> ::= 'break' | 'default' | 'func' | 'interface' | 'select' | 'case' | 'defer' | 'go'
+            | 'map' | 'struct' | 'chan' | 'else' | 'goto' | 'package' | 'switch' | 'const' | 'fallthrough'
+            | 'if' | 'range' | 'type' | 'continue' | 'for' | 'import' | 'return' | 'var'
+            
+!operators----------------------------------------
+<Expression> ::= <UnaryExpr> | <Expression> <Expression2>
+              
+<Expression2> ::=<binary_op> <Expression>  
+               
+<UnaryExpr>  ::= <PrimaryExpr> | <unary_op> <UnaryExpr>
+
+<binary_op>  ::= '||' | '&&' | <rel_op> | <add_op> | <mul_op>
+<rel_op>     ::= '==' | '!=' | '<' | '<=' | '>'| '>=' 
+<add_op>     ::= '+' | '-' | '|' | '^' 
+<mul_op>     ::= '*' | '/' | '%' | '<<' | '>>' | '&' | '&^' 
+
+<unary_op>   ::= '+' | '-' | '!' | '^' | '*' | '&' | '<-'
+          
+!assigments--------------------------------------------
+<Assignment> ::= <ExpressionList> <assign_op> <ExpressionList> 
+
+<assign_op> ::= <add_op> '=' | <mul_op> '=' | '='
+          
+!intiger literals----------------------------
+<int_lit>     ::= <decimal_lit> 
+<decimal_lit> ::=  numeros <seq_decimals>     
+               
+<seq_decimals> ::=   <seq_decimals> decimal_digit |     
+
+
+!floating-point--------------------------------
+
+
+<float_lit> ::= <decimals> '.' <decimals>  <exponent>  |  <decimals> '.' <decimals> |  <decimals> '.'  <exponent> 
+           | '.' <decimals> <exponent> |  '.' <decimals>  
+<decimals>  ::= decimal_digit <seq_decimal>
+             
+<seq_decimal> ::= <seq_decimal> decimal_digit |
+             
+
+<exponent>  ::= 'e' '+' <decimals>
+             !| 'E' '+' <decimals> 
+             |'e' '-' <decimals>
+             !|'E' '-' <decimals>
+             |'e' <decimals>
+            ! |'E' <decimals>
+       
+!imaginary literals------------------------------
+
+<imaginary_lit> ::= <decimals> 'i' | <float_lit> 'i'
+                 
+
+
+
+!Rune literals-----------------------------------
+
+<rune_lit> ::= ''' <unicode_value> ''' | ''' <byte_value> ''' 
+<unicode_value> ::= unicode_char | <little_u_value> | <big_u_value> | <escaped_char> 
+<byte_value> ::= <octal_byte_value> | <hex_byte_value> 
+<octal_byte_value> ::= '\' octal_digit octal_digit octal_digit 
+<hex_byte_value> ::= '\' 'x' hex_digit hex_digit 
+<little_u_value> ::= '\' 'u' hex_digit hex_digit hex_digit hex_digit
+<big_u_value> ::= '\' 'U' hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit 
+                         
+<escaped_char> ::= '\' 'a' 
+                | '\' 'b' 
+                | '\' 'f' 
+                | '\' 'n' 
+                | '\' 'r' 
+                | '\' 't' 
+                | '\' 'v' 
+                | '\' '\' 
+                | '\' '"'
+
+!String literals--------------------------------------
+
+<string_lit> ::= <raw_string_lit> | <interpreted_string_lit> 
+<raw_string_lit> ::=  '`' <seq_raw> '`'
+                  
+<seq_raw> ::= <seq_raw> <char_newline> |
+           
+<char_newline> ::= unicode_char | newLine
+                  
+
+
+
+<interpreted_string_lit> ::= '"'<seq_intrepreted> '"'
+                          
+<seq_intrepreted> ::= <seq_intrepreted> <valeus> |
+                          
+<valeus> ::= <unicode_value> | <byte_value>
+
+
+
+
+
+!types-----------------------------
+<Type> ::= <TypeName> | <TypeLit> | '(' <Type> ')'
+<TypeName> ::= <Identifier> | <QualifiedIdent>         
+<TypeLit> ::= <ArrayType> 
+           | <StructType> 
+           | <PointerType> 
+           | <FunctionType> 
+           | <InterfaceType> 
+           | <SliceType> 
+           | <MapType> 
+           | <ChannelType>
+
+
+
+!Array type---------------------------------------------
+<ArrayType> ::= '[' <ArrayLength> ']' <ElementType>             
+<ArrayLength> ::= <Expression>                
+<ElementType> ::= <Type>
+               
+!Struct type------------------------------------------------
+<StructType> ::= 'struct' '{' '}' | 'struct' '{' <StructType> <FieldDecl>';'  '}'           
+<FieldDecl>  ::= <indenti> <Tag> | <indenti>
+
+<indenti> ::= <IdentifierList> <Type> | <EmbeddedField>           
+
+<EmbeddedField> ::= '*' <TypeName> | <TypeName> 
+<Tag> ::= <string_lit>
+ 
+
+       
+!Pointer---------------------------------------------------------
+<PointerType> ::= '*' <BaseType>             
+<BaseType>    ::= <Type> 
+                           
+!Function type-------------------------------------------------
+<FunctionType>   ::= 'func' <Signature>                  
+<Signature>      ::= <Parameters> <Result> | <Parameters>
+<Result>         ::= <Parameters> | <Type> 
+<Parameters>     ::= '(' <ParameterList> ',' ')'|'('<ParameterList>')' |'(' ')'
+<ParameterList>  ::= <ParameterDecl> <seq_parameter>
+                  
+<seq_parameter> ::= <seq_parameter> ',' <ParameterDecl>
+                  
+
+
+<ParameterDecl>  ::= <Type> | <IdentifierList> '...'  <Type> | '...' <Type> | <IdentifierList> <Type> 
+               
+                
+!QualifiedIdent-----------------------------------------
+<QualifiedIdent> ::= <PackageName> '.' <Identifier> 
+
+!type definitions------------------------------------------
+<TypeDef> ::= <Identifier> <Type>
+
+
+!Interface-Types--------------------------------------------------
+<InterfaceType> ::= 'interface' '{' <seq_method> '}'
+                 
+<seq_method> ::= <seq_method> <MethodSpec> ';' | 
+ 
+<MethodSpec> ::= <MethodName> <Signature> | <InterfaceTypeName> 
+<MethodName> ::= <Identifier>
+<InterfaceTypeName> ::= <TypeName> 
+ 
+
+                   
+!SLice types-------------------------------------------------
+<SliceType> ::= '[' ']' <ElementType>
+
+
+!Map types--------------------------------------------------
+<MapType> ::= 'map' '[' <KeyType> ']' <ElementType> 
+<KeyType> ::= <Type>
+           
+
+!channel Type-----------------------------------------------
+<ChannelType> ::= <tipos_channel> <ElementType>
+               
+<tipos_channel> ::= 'chan' | 'chan' '<-' | '<-' 'chan'
+               
+!Blocks-----------------------------------------------------
+<Block> ::= '{' <StatementList> '}'
+<StatementList> ::= | <StatementList> <Statement>';' !ver se a barra dá errro--------------------------------------
+
+
+!declarations anda Scope------------------------------------------------
+<Declaration>   ::= <ConstDecl> | <TypeDecl> | <VarDecl> 
+<TopLevelDecl>  ::= <Declaration> | <FunctionDecl> | <MethodDecl>
+ 
+         
+!Constant declarations-----------------------------------------------------
+<ConstDecl>      ::= 'const' <select_cons>
+                  
+<select_cons> ::= <ConstSpec> | '(' <seq_cons> ')'
+               
+<seq_cons> ::= <seq_cons> <ConstSpec> ';' | 
+               
+
+
+<ConstSpec>      ::= <IdentifierList> 
+                  | <IdentifierList> <Type> '=' <ExpressionList> 
+                  | <IdentifierList> '=' <ExpressionList>
+                  
+
+<IdentifierList> ::= <Identifier> <seq_identif>
+                  
+<seq_identif> ::= <seq_identif> ',' <Identifier> |
+               
+
+
+<ExpressionList> ::= <Expression> <seq_expressao> 
+                  
+<seq_expressao> ::= <seq_expressao> ',' <Expression>|
+                  
+
+
+!Type declarations------------------------------------------------------
+<TypeDecl> ::= 'type' <select_type> 
+            
+<select_type> ::= <TypeSpec> |  '(' <seq_typespec> ')' 
+               
+<seq_typespec> ::= <seq_typespec> <TypeSpec> ';'
+            
+
+
+<TypeSpec> ::= <AliasDecl> | <TypeDef> 
+ 
+           
+!Alias declaration-------------------------------------------
+<AliasDecl> ::= <Identifier> '=' <Type> 
+             
+!Variable declaration--------------------------------------------
+<VarDecl> ::= 'var' <select_vardec>
+           
+<select_vardec> ::= <VarSpec> | '(' <seq_varspec> ')'
+                 
+<seq_varspec> ::= <seq_varspec> <VarSpec> ';' 
+
+<VarSpec> ::= <IdentifierList> <Type> 
+           | <IdentifierList> <Type>  '=' <ExpressionList> 
+           | '=' <ExpressionList> 
+
+           
+!Short variable declation--------------------------------------------
+<ShortVarDecl> ::= <IdentifierList> ':=' <ExpressionList> 
+
+!Function declaration-----------------------------------------------
+<FunctionDecl> ::= 'func' <FunctionName> <Signature> <FunctionBody>
+                |'func' <FunctionName> <Signature>
+<FunctionName> ::= <Identifier>
+<FunctionBody> ::= <Block> 
+ 
+               
+!Method declaration ------------------------------------------------------
+<MethodDecl> ::= 'func' <Receiver> <MethodName> <Signature> <FunctionBody>
+              |'func' <Receiver> <MethodName> <Signature>
+<Receiver> ::= <Parameters> 
+
+
+            
+!Expressions--------------------------------------------------------------
+!Operands-----------------------------------------------------------------
+<Operand> ::= <Literal> | <OperandName> | '(' <Expression> ')' 
+<Literal> ::= <BasicLit> | <CompositeLit> | <FunctionLit> 
+<BasicLit> ::= <int_lit> | <float_lit> | <imaginary_lit> 
+            | <rune_lit> | <string_lit>
+<OperandName>::= <Identifier> | <QualifiedIdent>
+              
+
+                  
+!Composite literals--------------------------------------------------------
+<CompositeLit>  ::= <LiteralType> <LiteralValue> 
+<LiteralType>   ::= <StructType> | <ArrayType> | '[' '...' ']' <ElementType> 
+                 | <SliceType> |<MapType> | <TypeName>
+<LiteralValue> ::= '{' '}' |'{' <ElementList>  '}'|'{' <ElementList> ',' '}' 
+<ElementList> ::= <KeyedElement> 
+               
+<seq_elemente> ::= <seq_elemente> ',' <KeyedElement>
+               
+
+<KeyedElement> ::= <Element> | <KeyedElement> <Key> ':' <Element>
+<Key> ::= <FieldName> | <Expression> | <LiteralValue> 
+<FieldName> ::= <Identifier>
+<Element> ::= <Expression> | <LiteralValue> 
+     
+          
+!Functon literals----------------------------------------------------------
+<FunctionLit> ::= 'func' <Signature> <FunctionBody>
+               
+!Primary Expressions---------------------------------------------------------
+<PrimaryExpr> ::= <Operand> | <Conversion> | <MethodExpr> 
+               | <PrimaryExpr> <Selector> |<PrimaryExpr> <Index> |<PrimaryExpr> <Slice> 
+               |<PrimaryExpr> <TypeAssertion> |<PrimaryExpr> <Arguments>
+
+<Selector> ::= '.' <Identifier>
+<Index> ::= '[' <Expression> ']'
+<Slice> ::= '[' <Expression>  ':' <Expression> ']' | '['  <Expression> ':' <Expression> ':' <Expression> ']'              
+<TypeAssertion> ::= '.' '(' <Type> ')'
+
+<Arguments> ::=' (' <teste> '...'   ','  ')' 
+               | '('')' 
+               | '(' <teste> '...' ')' 
+               |  '(' <teste> ','  ')' 
+               | '('<teste>')'
+
+
+
+<teste> ::= <ExpressionList> 
+      | <Type>  ',' <ExpressionList> 
+      | <Type>
+
+
+
+
+!Method expressions------------------------------------------------------------
+<MethodExpr> ::= <ReceiverType> '.' <MethodName>
+<ReceiverType> ::= <Type> 
+                
+!Convertiosn---------------------------------------------------------------------
+<Conversion> ::= <Type> '(' <Expression> ')'| <Type> '(' <Expression> ',' ')'
+                
+
+
+
+
+
+
+
+
+
+
+!Package---------------------------------------------------
+!Source file organization-----------------------------------
+<SourceFile> ::= <PackageClause> ';'
+              | <PackageClause> ';' <SourceFile> <ImportDecl> ';' <SourceFile> <TopLevelDecl> ';' 
+              |<PackageClause> ';' <SourceFile> <ImportDecl> ';'
+              |<PackageClause> ';' <SourceFile> <SourceFile><TopLevelDecl> ';'
+              
+!Package clause---------------------------------------------
+<PackageClause> ::= 'package' <PackageName>
+<PackageName> ::= <Identifier>
+               
+!Import eclarations--------------------------------------------
+<ImportDecl> ::= 'import' <ImportSpec> | <ImportDecl>'(' <ImportSpec> ';' ')'
+<ImportSpec> ::=  '.' | <PackageName> <ImportPath>
+              |<ImportPath>
+<ImportPath> ::= <string_lit> 
+
+
+
+
+!==================================
+
+
+<Statement> ::= <Declaration> | <LabeledStmt> | <SimpleStmt> 
+             | <GoStmt> 
+             | <ReturnStmt> | <BreakStmt> | <ContinueStmt> 
+             | <GotoStmt> | <FallthroughStmt> | <Block> 
+             | <IfStmt> | <SwitchStmt> | <SelectStmt> 
+             | <ForStmt> | <DeferStmt> 
+
+<SimpleStmt> ::= <EmptyStmt> | <ExpressionStmt> 
+              | <SendStmt> | <IncDecStmt> 
+              | <Assignment> | <ShortVarDecl>
+             
+<EmptyStmt> ::=
+             
+<LabeledStmt> ::= <Label> ':' <Statement> 
+<Label> ::= <Identifier>
+
+<ExpressionStmt> ::= <Expression>
+                  
+<SendStmt> ::= <Channel> '<-' <Expression>
+<Channel>  ::= <Expression>
+
+<IncDecStmt> ::= <Expression> '++'
+
+<IncDecStmt> ::= <Expression> '--'
+
+!if-------------------
+<IfStmt> ::= 'if'  <SimpleStmt> ';'  <Expression> <Block> 'else' <IfStmt>
+           | 'if'  <Expression> <Block> 'else'  <IfStmt> 
+           | 'if'  <Expression> <Block> 
+
+!Switch---------------------------------------
+
+<SwitchStmt> ::= <ExprSwitchStmt> | <TypeSwitchStmt>
+              
+<ExprSwitchStmt> ::= 'switch'  <SimpleStmt> ';'   <Expression> '{' <seq_clause> '}'
+                    |'switch'  <SimpleStmt> ';'    '{'  <seq_clause> '}'
+                    | 'switch'  <Expression> '{' <seq_clause>  '}'
+                    |'switch' '{'  <seq_clause>  '}'
+                    
+<seq_clause> ::= <seq_clause> <ExprCaseClause> | 
+                    
+<ExprCaseClause> ::= <ExprSwitchCase> ':' <StatementList> 
+<ExprSwitchCase> ::= 'case' <ExpressionList> | 'default'
+
+
+<TypeSwitchStmt> ::= 'switch' <SimpleStmt> ';' <TypeSwitchGuard> '{'<seq_typeclause> '}'
+                  | 'switch' <TypeSwitchGuard> '{' <seq_typeclause> '}'
+
+<seq_typeclause> ::= <seq_typeclause> <TypeCaseClause> | 
+                  
+<TypeSwitchGuard> ::= <Identifier> ':='  <PrimaryExpr> '.' '(' 'type' ')'
+                   | <PrimaryExpr> '.' '(' 'type' ')'
+                   
+<TypeCaseClause>  ::= <TypeSwitchCase> ':' <StatementList> 
+<TypeSwitchCase>  ::= 'case' <TypeList> | 'default' 
+<TypeList> ::= <Type> <seq_typelist> 
+            
+<seq_typelist> ::= <seq_typelist> ',' <Type> |  
+            
+
+
+!--------------------------------------------
+
+<ForStmt> ::= 'for'  <Block> | 'for' <condicao> <Block>
+<Condition> ::= <Expression> 
+
+<condicao> ::= <Condition> | <ForClause> | <RangeClause>
+            
+<ForClause> ::= <InitStmt> ';' <Condition> ';' <PostStmt>
+             |';' <Condition> ';' <PostStmt>
+             |';'';' <PostStmt>
+             | <InitStmt> ';'';' <PostStmt>
+             |<InitStmt> ';'';'
+             |';' <Condition> ';'
+             |<InitStmt> ';' <Condition> ';'
+             |
+             
+
+
+<InitStmt> ::= <SimpleStmt> 
+<PostStmt> ::= <SimpleStmt> 
+
+
+<RangeClause> ::= <opcao_range> 'range' <Expression> | 'range' <Expression>
+
+<opcao_range> ::= <ExpressionList> '=' | <IdentifierList> ':='
+               
+<GoStmt> ::= 'go' <Expression>
+          
+<SelectStmt> ::= 'select' '{' <seq_comm> '}' 
+
+<seq_comm> ::= <seq_comm> <CommClause> |
+
+<CommClause> ::= <CommCase> ':' <StatementList> 
+<CommCase>   ::= 'case' <send_recive>  | 'default'
+              
+<send_recive> ::=<SendStmt> | <RecvStmt>
+               
+<RecvStmt>   ::= <opcao_range> <RecvExpr> | <RecvExpr>
+<RecvExpr>   ::= <Expression>
+
+
+<ReturnStmt> ::= 'return' <ExpressionList> | 'return'
+
+ <BreakStmt> ::= 'break' <Label> | 'break'
+
+<ContinueStmt> ::= 'continue'  <Label> | 'continue'
+
+<GotoStmt> ::= 'goto' <Label>
+            
+<FallthroughStmt> ::= 'fallthrough'
+
+<DeferStmt> ::= 'defer' <Expression>
+
+          
+
+
+
+
+!vazios_______________________________________________________
+
+!!<PrimaryExpr>::=
+!
+!<Statement>::=  
+!            
+!<IdentifierList>::=
+!                 
+!<TopLevelDecl>::=           
+!
+!<TypeDecl>::=
+!           
+!<VarDecl>::=
+!          
+!<FunctionDecl>::=
+!               
+!<MethodDecl>::=
+!             
+!<AliasDecl>::=
+!            
+!!<FunctionLit>::=
+!              
+!!<Conversion>::=
+!             
+!!<MethodExpr>::=
