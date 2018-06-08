@@ -10,13 +10,13 @@ Whitespace = {WS}+
            
 newline = {All NewLine}
 unicode_char   = {Alphanumeric} + [_]
-unicode_letter = {Letter}+
+!Identifier = {Letter}+
                
 unicode_digit  = {Digit}
                
 !numeros = [123456789]
 
-<letter> ::= unicode_letter | '_' 
+<letter> ::= Identifier | '_' 
 {decimal_digit} = {Number}
 
 
