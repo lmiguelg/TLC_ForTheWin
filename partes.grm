@@ -12,9 +12,12 @@ unicode_digit  = {Digit}
 
 <letter> ::= unicode_letter | '_' 
 {decimal_digit} = {Number}
+           
 {OctalDigit} = [01234567]
 hex_digit = {Digit} + [abcdef]
  
+
+OctalNumber = [0]{OctalDigit}*
 !Identifier-------------             
 <Identifier> ::= <letter> <letter> | <letter> unicode_digit
      
