@@ -1,0 +1,93 @@
+﻿"Start Symbol" = <Program>
+
+! -------------------------------------------------
+! Character Sets
+! -------------------------------------------------
+{WS} = {Whitespace} - {CR} - {LF}
+
+{ID Head}      = {Letter} + [_]
+{ID Tail}      = {Alphanumeric} + [_]
+{String Chars} = {Printable} + {HT} - ["]
+
+! -------------------------------------------------
+! Terminals
+! -------------------------------------------------
+Whitespace    = {WS}+
+NewLine       = {CR}{LF} | {CR} | {LF}      
+Identifier    = {ID Head}{ID Tail}*
+StringLiteral = '"' {String Chars}* '"'
+
+! -------------------------------------------------
+! Rules
+! -------------------------------------------------
+
+
+<nl>     ::= NewLine <nl>          !One or more
+          |  NewLine
+
+<nl Opt> ::= NewLine <nl Opt>      !Zero or more
+          |  !Empty
+
+! <nl opt> removes blank lines before first statement
+! The grammar starts below
+<Program> ::= <nl opt> <Value> 
+
+<Expression>  ::= <Expression> '>'  <Add Exp> 
+               |  <Expression> '<'  <Add Exp> 
+               |  <Expression> '<=' <Add Exp> 
+               |  <Expression> '>=' <Add Exp>
+               |  <Expression> '==' <Add Exp>    !Equal
+               |  <Add Exp> 
+
+<Add Exp>     ::= <Add Exp> '+' <Mult Exp>
+               |  <Add Exp> '-' <Mult Exp>
+               |  <Mult Exp> 
+
+<Mult Exp>    ::= <Mult Exp> '*' <Other Exp>  
+               |  <Mult Exp> '/' <Other Exp> 
+               |  <Other Exp>  
+
+<Other Exp>  ::= <Other Exp>'||'<Value>
+               | <Other Exp>'&&'<Value>
+               | <Other Exp>'|'<Value>
+               | <Other Exp>'^'<Value>
+               | <Other Exp>'!'<Value>
+               | <Other Exp>'&'<Value>
+               | <Other Exp>'&^'<Value>
+               | <Other Exp>'<-'<Value>
+               | <Value> 
+
+!Add more values to the rule below - as needed
+
+<Value>       ::= Identifier
+               |  '(' <Expression> ')'<nl>
+               | Identifier '=' <Value>
+               | <PackageClause> <ImportDecl> <Value>
+               | <ImportDecl> <Value>
+               | <Type> 
+               
+<Type> ::= <FunctionDecl><nl>
+        
+<FunctionDecl> ::= 'func'Identifier <Parameters> '{' '}'
+                
+<Parameters> ::= '('')'|'('Identifier')'
+              
+<Parameters>     ::= '(' <ParameterList> ',' ')'|'('<ParameterList>')' |'(' ')'
+<ParameterList>  ::= <ParameterDecl> <seq_parameter>                 
+<seq_parameter> ::= <seq_parameter> ',' <ParameterDecl>
+ 
+
+              
+!Package----------------------------------------------------------
+<PackageClause> ::= 'package' Identifier<nl>             
+ 
+!Import declarations------------------------------------------------
+<ImportDecl> ::= 'import' StringLiteral<nl>
+!não é preciso String lit pq já existe 
+              
+
+
+
+
+
+
