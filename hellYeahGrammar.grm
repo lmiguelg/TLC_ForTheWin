@@ -70,13 +70,9 @@ StringLiteral = '"' {String Chars}* '"'
         
 <FunctionDecl> ::= 'func'Identifier <Parameters> '{' '}'
                 
-<Parameters> ::= '('')'|'('Identifier')'
-              
-<Parameters>     ::= '(' <ParameterList> ',' ')'|'('<ParameterList>')' |'(' ')'
-<ParameterList>  ::= <ParameterDecl> <seq_parameter>                 
-<seq_parameter> ::= <seq_parameter> ',' <ParameterDecl>
- 
-
+<Parameters> ::= '('')'|'('Identifier')'| <ParametersList> 
+       
+<ParametersList> ::= '(' Identifier ',' <ParametersList>')'!verificar para o caso de haver 2 ou mais parametros
               
 !Package----------------------------------------------------------
 <PackageClause> ::= 'package' Identifier<nl>             
