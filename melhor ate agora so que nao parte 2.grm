@@ -424,11 +424,11 @@ Identifier = {Letter}{Alphanumeric}*
              | <IfStmt> | <SwitchStmt> | <SelectStmt> 
              | <ForStmt> | <DeferStmt> 
 
-<SimpleStmt> ::= <EmptyStmt> <Statement> |  <SimpleStmt> <Expression> <Statement>
-              | <SimpleStmt> <SendStmt> <Statement> | <SimpleStmt> <IncDecStmt> <Statement> 
-              | <SimpleStmt> <Assignment> <Statement> | <SimpleStmt> <ShortVarDecl> <Statement>
+<SimpleStmt> ::= | <Expression>
+              | <SendStmt> |  <IncDecStmt>  
+              |  <Assignment>  | <ShortVarDecl> 
              
-<EmptyStmt> ::=
+!<EmptyStmt> ::=
              
 <LabeledStmt> ::= <Label> ':' <Statement> 
 <Label> ::= Identifier
