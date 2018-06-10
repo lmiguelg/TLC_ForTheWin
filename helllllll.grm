@@ -61,7 +61,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                | '!'<Value>
                | <Other Exp>'&'<Value>
                | <Other Exp>'&^'<Value>
-               | <Other Exp>'<-'<Value>            
+               | <Other Exp>'<-'<Value>
+               | <Other Exp>':='<Value>         
                | <Value> 
 
 !Add more values to the rule below - as needed
@@ -74,16 +75,23 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                | <Type>
                | Numeros 
                | <Type> <Value>
+               |<a>
+
+ 
+  
+           
+            
+               
                
                
 <Type> ::= <FunctionDecl><nl>
         
-<FunctionDecl> ::= 'func'Identifier <Parameters> '{' <etapas> '}'
+<FunctionDecl> ::= 'func'Identifier <Parameters> <Block> 
                 
-<Parameters> ::= '('')'|'('Identifier')'| '('Identifier ',' <ParametersList> ')'
+<Parameters> ::= '('')'|'('<ParametersList>')'
        
-<ParametersList> ::= '(' Identifier ',' <ParametersList>')'!verificar para o caso de haver 2 ou mais parametros
-              
+<ParametersList> ::= <ParametersList> ',' Identifier 
+                  |Identifier               
 !Package----------------------------------------------------------
 <PackageClause> ::= 'package' Identifier<nl>             
  
@@ -91,12 +99,70 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 <ImportDecl> ::= 'import' StringLiteral<nl>
 !não é preciso String lit pq já existe 
               
-<etapas> ::= <nl> Identifier '.' Identifier '(' <prints> ')' <nl> 
-          | 
-          
-
+<etapas> ::= Identifier '.' Identifier '(' <prints> ')'
+       
+ 
 <prints> ::= StringLiteral ',' <Expression> 
           | <Expression>
+          | StringLiteral
+
+
+!Blocks-----------------------------------------------------
+<Block> ::= '{'<nl> <StatementList> '}'|'{' '}'
+         
+<StatementList> ::=  <StatementList> <Statement> 
+              | <Statement> 
+                
+<Statement> ::= <etapas><nl>
+             |<ForStm><nl>
+             | <IfStatment><nl>
+             |<SwitchStm><nl>
+             |<FunctionDecl> <nl>
+             
+!IF Statment----------------------------------------------
+<IfStatment> ::= IF <Expression> <Block> 
+              |IF <Expression> <Block> <nl> ELSE <Block> 
+              |IF <Expression> <Block> ELSE <Block> 
+              |IF <Expression> <Block> <nl> ELSE IF <Expression> <Block>
+              |IF <Expression> <Block> ELSE IF <Expression> <Block>
+              
+
+!For Statment----------------------------------------------           
+<ForStm> ::= FOR <Expression> <Block>
+          |FOR <Block>
+          |FOR <Expression> ';' <Expression> ';' <IncDecStmt> <Block>
+          
+!Switch Statment---------------------------------------------
+<SwitchStm> ::= 'switch' Identifier '{'<nl> <caseList> '}'
+             |'switch''{'<nl> <caseList> '}'
+             |'switch' <Expression>'{'<nl> <caseList> '}'
+             
+<Case> ::= 'case' <Vars> ':' <nl> <etapas> <nl>
+        |'default' ':'<nl> <etapas> <nl> 
+        !|'case'  <Expression> <nl> <etapas> <nl>
+        !falta fazer o caso case t.Hour() < 12:
+        
+<caseList> ::=<caseList> <case>
+            |<case>
+
+<a> ::= Identifier <Selector> 
+!decrementação incrementação
+<IncDecStmt> ::= <Vars> '++' | <Vars> '--'
+<Vars> ::= Identifier | Numeros            
+
+!Selector----------------------------------------------------
+<Selector> ::= '.' Identifier
+            |'.' Identifier '(' ')'
+            |'.' Identifier '('<Parameters> ')'
+            |'.' '('Identifier')'
+
+
+
+
+
+
+
+
 
 
 
