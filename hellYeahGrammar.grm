@@ -60,20 +60,31 @@ StringLiteral = '"' {String Chars}* '"'
 !Add more values to the rule below - as needed
 
 <Value>       ::= Identifier
-               |  '(' <Expression> ')'<nl>
+               |  <Expr><nl>
                | Identifier '=' <Value>
                | <PackageClause> <ImportDecl> <Value>
                | <ImportDecl> <Value>
-               | <Type> 
+               | <Type> <Value>
+               | <Type>
                
 <Type> ::= <FunctionDecl><nl>
         
-<FunctionDecl> ::= 'func'Identifier <Parameters> '{' '}'
+<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>
                 
 <Parameters> ::= '('')'|'('Identifier')'| <ParametersList> 
        
 <ParametersList> ::= '(' Identifier ',' <ParametersList>')'!verificar para o caso de haver 2 ou mais parametros
-              
+     
+
+!Block---------------------------------------------------------
+<Block> ::= '{'Identifier <Stm> <Expr> '}'|'{' '}'
+   
+<Stm>::= '.' Identifier 
+      
+<Expr> ::= '(' <Expression> ')' 
+
+
+         
 !Package----------------------------------------------------------
 <PackageClause> ::= 'package' Identifier<nl>             
  
