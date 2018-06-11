@@ -73,16 +73,24 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                | <PackageClause> <ImportDecl> <Value>
                | <ImportDecl> <Value>
                | <Type>
-               | <NumberList> !novo
+               | <NumberList>
                | StringLiteral
                | <Type> <Value>
                |<a>
                        
-<Type> ::= <FunctionDecl><nl>        
-<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>                               
-<Parameters> ::= '('')'|'('<ParametersList>')'
-              |'('<ParametersList>')' Identifier !novo
-              |'('')' '('<IdentifierList>')' !novo
+<Type> ::= <FunctionDecl><nl>
+                
+<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>  
+              !  |'func'Identifier <Parameters> Identifier  <Parameters> Identifier <Block>
+                |'func'Identifier <Parameters> <FunctionDecl>
+                | 'func' <Parameters> Identifier <Block>
+                                
+<Parameters> ::= '('')'
+              |'('<ParametersList>')'
+              |'('<ParametersList>')' Identifier 
+              |'('')' '('<IdentifierList>')' 
+              | '('<ParametersList>')' Identifier  '('<ParametersList>')'  Identifier
+              
               
        
 <ParametersList> ::= <ParametersList> ',' Identifier 
@@ -100,6 +108,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
               
 <printar> ::= Identifier '.' Identifier '(' <prints> ')'
            | <return> !novo
+           
+          
        
  
 <prints> ::= StringLiteral ',' <Expression>
@@ -112,6 +122,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
           |StringLiteral ',' <array>
           | StringLiteral ',' Identifier '(' Identifier ')'
           | <array> ',' Number
+          |Identifier '(' ')' !novo
 
 
 !Blocks-----------------------------------------------------
@@ -136,6 +147,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
              | <map> <nl>
              | <map> 
              |<pequenasfunnc> <nl>!novo
+
 
                         
 !IF Statment----------------------------------------------
@@ -275,11 +287,16 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                     
 
 !return--------------------------------
-
-<return> ::= 'return' <Expression>!novo
+!temos de acabar os closers
+<return> ::= 'return' <Expression>
+          |'return' Identifier <Parameters> Identifier <Block> 
          ! | 'return' <NumberList>
-          
-!
+
+  
+!estruturas-----------------------------------
+
+<struct>        
+
 
 
 
