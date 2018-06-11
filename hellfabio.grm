@@ -1,0 +1,298 @@
+﻿"Start Symbol" = <Program>
+
+! -------------------------------------------------
+! Character Sets
+! -------------------------------------------------
+{WS} = {Whitespace} - {CR} - {LF}
+
+{ID Head}      = {Letter} + [_]
+{ID Tail}      = {Alphanumeric} + [_]
+{String Chars} = {Printable} + {HT} - ["]
+
+! -------------------------------------------------
+! Terminals
+! -------------------------------------------------
+Whitespace    = {WS}+
+NewLine       = {CR}{LF} | {CR} | {LF}      
+Identifier    = {ID Head}{ID Tail}*
+StringLiteral = '"' {String Chars}* '"'
+              
+Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
+        | {Digit}+ 'e' {Digit}+
+        
+! -------------------------------------------------
+! Rules
+! -------------------------------------------------
+
+!<Commentary> ::= '//'
+           
+!<Comentary_all> ::= '*/' | '/*' 
+
+<nl>     ::= NewLine <nl>          !One or more
+          |  NewLine
+
+<nl Opt> ::= NewLine <nl Opt>      !Zero or more
+          |  !Empty
+
+! <nl opt> removes blank lines before first statement
+! The grammar starts below
+<Program> ::= <nl opt> <Value> 
+
+<Expression>  ::= <Expression> '>'  <Add Exp> 
+               |  <Expression> '<'  <Add Exp> 
+               |  <Expression> '<=' <Add Exp> 
+               |  <Expression> '>=' <Add Exp>
+               |  <Expression> '==' <Add Exp>    !Equal
+               |  <Add Exp> 
+
+<Add Exp>     ::= <Add Exp> '+' <Mult Exp>
+               |  <Add Exp> '-' <Mult Exp>
+               |  <Mult Exp> 
+
+<Mult Exp>    ::= <Mult Exp> '*' <Other Exp>  
+               |  <Mult Exp> '/' <Other Exp> 
+               |  <Other Exp>  
+
+<Other Exp>  ::= <Other Exp>'||'<Value>
+               | <Other Exp>'&&'<Value>
+               | <Other Exp>'|'<Value>
+               | <Other Exp>'^'<Value>
+               | '!'<Value>
+               | <Other Exp>'&'<Value>
+               | <Other Exp>'&^'<Value>
+               | <Other Exp>'<-'<Value>
+               | <Other Exp>'%'<Value> 
+               | <Other Exp>':='<Value>  
+               | <Value> 
+
+!Add more values to the rule below - as needed
+
+<Value>       ::= Identifier
+               |  '(' <Expression> ')'<nl>
+               | Identifier '=' <Value>
+               | <PackageClause> <ImportDecl> <Value>
+               | <ImportDecl> <Value>
+               | <Type>
+               | <NumberList> !novo
+               | StringLiteral
+               | <Type> <Value>
+               |<a>
+                       
+<Type> ::= <FunctionDecl><nl>        
+<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>                               
+<Parameters> ::= '('')'|'('<ParametersList>')'
+              |'('<ParametersList>')' Identifier !novo
+              |'('')' '('<IdentifierList>')' !novo
+              
+       
+<ParametersList> ::= <ParametersList> ',' Identifier 
+                  |<ParametersList> ',' Identifier Identifier
+                  |Identifier
+                  |Identifier Identifier 
+                     
+                            
+!Package----------------------------------------------------------
+<PackageClause> ::= 'package' Identifier<nl>             
+ 
+!Import declarations------------------------------------------------
+<ImportDecl> ::= 'import' StringLiteral<nl>
+!não é preciso String lit pq já existe 
+              
+<printar> ::= Identifier '.' Identifier '(' <prints> ')'
+           | <return> !novo
+       
+ 
+<prints> ::= StringLiteral ',' <Expression>
+          | <IdentifierList>
+          | StringLiteral
+          | <NumberList>
+          | Identifier '(' Identifier ')'
+          | Identifier <Selector>
+          | StringLiteral '+' StringLiteral ! este ainda nao funciona
+          |StringLiteral ',' <array>
+          | StringLiteral ',' Identifier '(' Identifier ')'
+          | <array> ',' Number
+
+
+!Blocks-----------------------------------------------------
+<Block> ::= '{'<nl> <StatementList> '}'|'{' '}'
+         
+<StatementList> ::=  <StatementList> <Statement> 
+              | <Statement> 
+                
+<Statement> ::= <printar><nl>
+             |<ForStm><nl>
+             | <IfStatment>
+             |<SwitchStm><nl>
+             |<FunctionDecl> <nl>
+             |<var><nl>
+             | <var> '=' <Numberlist> <nl> !bug de merda nao estava a dar para meter uma lista de numeros
+             | <Constantes> <nl>
+             | <array> <nl>
+             | <IncDecStmt> <nl>
+             | <Keyword> <nl>
+             |<doispontos> <nl>
+             |<slice> <nl>
+             | <map> <nl>
+             | <map> 
+             |<pequenasfunnc> <nl>!novo
+
+                        
+!IF Statment----------------------------------------------
+<IfStatment> ::= IF <Expression> <Block> <nl> 
+              |IF <Expression> <Block>  ELSE <Block> 
+              |IF <Expression> <Block> <nl> ELSE <Block> 
+              |IF <Expression> ';' <Expression> <Block> <nl> ELSE <Block>
+              |IF <Expression> <Block><nl>  ELSE  IF <Expression> <Block>
+              |IF <Expression> <Block> ELSE IF <Expression> <Block>
+              
+!For Statment----------------------------------------------           
+<ForStm> ::= FOR <Expression> <Block>
+          |FOR <Block>
+          |FOR <Expression> ';' <Expression> ';' <IncDecStmt> <Block>
+          
+!Switch Statment---------------------------------------------
+<SwitchStm> ::= 'switch' Identifier '{'<nl> <caseList> '}'
+             |'switch''{'<nl> <caseList> '}'
+             |'switch' <Expression>'{'<nl> <caseList> '}'
+             
+<Case> ::= 'case' <Vars> ':' <nl> <printar> <nl>
+        |'default' ':'<nl> <printar> <nl> 
+        !|'case'  <Expression> <nl> <etapas> <nl>
+        !falta fazer o caso case t.Hour() < 12:
+        
+<caseList> ::=<caseList> <case>
+            |<case>
+
+<a> ::= Identifier <Selector> 
+     
+!decrementação incrementação
+
+<IncDecStmt> ::= <Vars> '++' | <Vars> '--'
+              | <Vars> '=' <Vars> '+' <Vars>
+              |  <Vars> '=' <Vars> '-' <Vars>
+              
+<Vars> ::= Identifier | Numeros            
+
+!Selector----------------------------------------------------
+<Selector> ::= '.' Identifier
+            |'.' Identifier '(' ')'
+            |'.' Identifier '('<Parameters> ')'
+            |'.' Identifier '('Identifier ')'
+            |'.' '('Identifier')'
+
+!variables----------------
+
+<var> ::= 'var'  <IdentifierList> '=' Identifier
+       |'var'  <IdentifierList> '=' StringLiteral
+       | 'var'  <IdentifierList>  '=' <NumberList>
+       | 'var'  <IdentifierList> Identifier 
+       | <doispontos> StringLiteral
+       | 'var' <IdentifierList>
+       | 'var' <array>
+       
+
+<IdentifierList> ::= Identifier | <IdentifierList> ',' Identifier 
+                  
+<NumberList> ::= Numeros | <NumberList> ',' Numeros
+
+! COonstantes-------------------------------
+!falta por fora
+<Constantes> ::= 'const' Identifier Identifier '=' StringLiteral
+              | 'const' Identifier '=' <Expression>
+              
+
+! ARRaqys********************
+<array> ::= Identifier '[' Numeros ']' Identifier
+         |Identifier '[' Numeros ']' '[' Numeros ']' Identifier
+         | Identifier '[' Numeros ']' '=' Numeros
+         | Identifier '[' Numeros ']' '=' StringLiteral
+         | Identifier '[' Identifier ']' '[' Identifier ']' '=' <Expression>
+         |Identifier '[' Numeros ']'
+         | Identifier '[' Indentifier ']'
+         | '[' ']' Identifier
+         |'[' ']' Identifier '{' StringLiteral ',' StringLiteral ',' StringLiteral '}'    
+         | Identifier '[' Identifier ']' '=' <Expression>         
+
+<Keyword> ::= 'break' | 'continue'
+           
+<doispontos> ::= <IdentifierList> ':=' Identifier '(' <array> ',' <prints> ')'
+              | <IdentifierList> ':=' <array> 
+              |<IdentifierList> ':=' <Expression>
+                        
+!slices----------------------
+
+<slice> ::= <array>
+         | Identifier ':=' 'make' '(''['']' Identifier ','<Vars> ')'
+         | Identifier ':=' 'make' '(''['']' Identifier ','Identifier '(' Identifier')' ')'
+         | Identifier ':=' 'make' '(''[' ']' <slice> ')'
+         | Identifier ':=' 'make' '(' '['']' '['']' Identifier ','<Vars> ')'
+         | Identifier ':=' <Expression>
+         | Identifier ':=' <pequenasfunnc>!novo
+         | Identifier '=' <pequenasfunnc>!novo
+         | Identifier '['Identifier ']' '=' 'make' '(''['']' Identifier ','<Vars> ')'
+         | <copySlice>
+         | <sliceOperator>
+         |<Initialize1LineSlice>
+                
+<copySlice> ::= 'copy' '('Identifier ',' Identifier ')'
+<sliceOperator> ::= Identifier ':=' Identifier '[' Numeros ':' Numeros ']'
+                 | Identifier '=' Identifier '[' ':' Numeros ']'
+                 | Identifier '=' Identifier '[' Numeros ':' ']'
+                 
+                 
+<Initialize1LineSlice> ::= Identifier ':=' '['']'Identifier '{' <varsSliceList> '}'                     
+<varsSlice> ::= <vars> | StringLiteral
+<varsSliceList> ::= <varsSliceList> ',' <varsSlice> | <varsSlice>
+
+!Identifier '=' Identifier '(' Identifier ',' StringLiteral ')'
+!| Identifier '=' Identifier '(' Identifier ',' StringLiteral ',' StringLiteral ')'
+
+
+<pequenasfunnc> ::= <IdentifierList> '(' <IdentifierList> ')'!novo
+                 |<IdentifierList> '(' <NumberList>')'
+                 |<IdentifierList> '(' ')'
+
+                 
+!Map-------------------------------------------completo!--------------------
+<map> ::= 'map' '[' Identifier ']' Identifier
+       | Identifier ':=' 'make' '(' <map> ')'
+       | Identifier ':=' 'make' '(' <map> ',' Numeros ')'
+       |<setName> <nl>
+       |<GetValue>
+       |<DeleteKey>
+       |<BlankIdMap>
+       |<Initialize1Line>
+        
+<setName> ::= Identifier '[' StringLiteral']' '=' <vars>
+<DeleteKey> ::= 'delete' '('Identifier ',' StringLiteral ')'
+<BlankIdMap> ::= '_'',' <GetValue>
+<GetValue> ::= Identifier ':=' Identifier '['StringLiteral']'
+<Initialize1Line> ::= Identifier ':=' 'map' '[' Identifier ']' Identifier '{'<ParameterMapList> '}'
+<ParameterMap> ::= StringLiteral ':' Numeros
+<ParameterMapList> ::=  <ParameterMapList>',' <ParameterMap>
+                    |<ParameterMap>
+                    
+
+!return--------------------------------
+
+<return> ::= 'return' <Expression>!novo
+         ! | 'return' <NumberList>
+          
+!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
