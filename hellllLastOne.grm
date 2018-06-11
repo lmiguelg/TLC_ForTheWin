@@ -134,7 +134,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
            | Identifier ':=' '<-' Identifier 
            | Identifier '<-' <vars> 
            | '<-' Identifier 
-           
+           | '<-' Identifier '.'Identifier '('Numeros '*' Identifier'.'Identifier')'
+           | <IdentifierList> ':=' '<-' Identifier
            
           
            
@@ -194,6 +195,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
              |<pequenasfunnc> <nl>
              |<acessStruct><nl>
              | <Goroutine><nl>
+             |<select>
        
          
                         
@@ -215,7 +217,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
           |FOR Identifier',' <Expression> StringLiteral <Block>
           |FOR '_' ',' <Expression> <Block> 
           
-!Switch Statment---------------------------------------------
+!Switch Statment------------------------------------------------------------
 <SwitchStm> ::= 'switch' Identifier '{'<nl> <caseList> '}'
              |'switch''{'<nl> <caseList> '}'
              |'switch' <Expression>'{'<nl> <caseList> '}'
@@ -230,7 +232,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 
 <a> ::= Identifier <Selector> 
      
-!decrementação incrementação
+!decrementação incrementação-----------------------------------------------
 
 <IncDecStmt> ::= <Vars> '++' | <Vars> '--'
               | <Vars> '=' <Vars> '+' <Vars>
@@ -351,6 +353,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 <return> ::= 'return' <Expression>
           |'return' Identifier '*' Identifier '('<Expression>')'
           |'return' <Expression> <erros>
+          |'return'
 
 <erros> ::= ',' 'errors' '.' 'New' '(' StringLiteral ')'
          | ',' 'nil' !erros
@@ -384,7 +387,14 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
              | 'go ' <FunctionDecl> 
              
 
-
+!Select--------------------------------------------------------------
+<select> ::= Identifier '{'<nl> <caseSelectList>'}'<nl>
+          
+<caseSelect> ::= 'case' <printar>':' <nl><printar><nl>
+              |'default' ':' <nl><printar><nl>
+              
+<caseSelectList> ::=<caseSelectList> <caseSelect>
+                  | <caseSelect>
 
 !Exit-----------------------------------------------------------------
 
