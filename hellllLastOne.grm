@@ -20,8 +20,6 @@ StringLiteral = '"' {String Chars}* '"'
 Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
         | {Digit}+ 'e' {Digit}+
         
-
-
 ! -------------------------------------------------
 ! Rules
 ! -------------------------------------------------
@@ -79,23 +77,14 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                | StringLiteral
                | <Type> <Value>
                |<a>
-
-               
-
-
-                          
-<Type> ::= <FunctionDecl><nl>
-       
-        
-<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>
-               
-                
+                       
+<Type> ::= <FunctionDecl><nl>        
+<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>                              
 <Parameters> ::= '('')'|'('<ParametersList>')'
        
 <ParametersList> ::= <ParametersList> ',' Identifier 
                   |Identifier   
-                  
-            
+                            
 !Package----------------------------------------------------------
 <PackageClause> ::= 'package' Identifier<nl>             
  
@@ -118,12 +107,6 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
           | <array> ',' Number
 
 
-
-         
-         
-         
-
-
 !Blocks-----------------------------------------------------
 <Block> ::= '{'<nl> <StatementList> '}'|'{' '}'
          
@@ -143,11 +126,9 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
              | <Keyword> <nl>
              |<doispontos> <nl>
              |<slice> <nl>
-             |<pequenasfunnc> <nl>
              | <map> <nl>
              | <map> 
-             
-             
+                        
 !IF Statment----------------------------------------------
 <IfStatment> ::= IF <Expression> <Block> <nl> 
               |IF <Expression> <Block>  ELSE <Block> 
@@ -156,7 +137,6 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
               |IF <Expression> <Block><nl>  ELSE  IF <Expression> <Block>
               |IF <Expression> <Block> ELSE IF <Expression> <Block>
               
-
 !For Statment----------------------------------------------           
 <ForStm> ::= FOR <Expression> <Block>
           |FOR <Block>
@@ -203,7 +183,6 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
        | 'var' <array>
        
 
-
 <IdentifierList> ::= Identifier | <IdentifierList> ',' Identifier 
                   
 <NumberList> ::= Numeros | <NumberList> ',' Numeros
@@ -215,8 +194,6 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
               
 
 ! ARRaqys********************
-
-
 <array> ::= Identifier '[' Numeros ']' Identifier
          |Identifier '[' Numeros ']' '[' Numeros ']' Identifier
          | Identifier '[' Numeros ']' '=' Numeros
@@ -225,28 +202,41 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
          |Identifier '[' Numeros ']'
          | Identifier '[' Indentifier ']'
          | '[' ']' Identifier
-         |'[' ']' Identifier '{' StringLiteral ',' StringLiteral ',' StringLiteral '}'
-         | Identifier '[' Number ':' Number ']' 
-         | Identifier '[' ':' Number ']'
-         | Identifier '[' Number ':' ']'
-         | Identifier '[' Identifier ']' '=' <Expression>
-
-         
+         |'[' ']' Identifier '{' StringLiteral ',' StringLiteral ',' StringLiteral '}'    
+         | Identifier '[' Identifier ']' '=' <Expression>         
 
 <Keyword> ::= 'break' | 'continue'
            
 <doispontos> ::= <IdentifierList> ':=' Identifier '(' <array> ',' <prints> ')'
               | <IdentifierList> ':=' <array> 
               |<IdentifierList> ':=' <Expression>
-            
-              
+                        
 !slices----------------------
 
-<slice> ::= Identifier '=' Identifier '(' Identifier ',' StringLiteral ')'
-         | Identifier '=' Identifier '(' Identifier ',' StringLiteral ',' StringLiteral ')'
-              
+<slice> ::= <array>
+         | Identifier ':=' 'make' '(''['']' Identifier ','<Vars> ')'
+         | Identifier ':=' 'make' '(''['']' Identifier ','Identifier '(' Identifier')' ')'
+         | Identifier ':=' 'make' '(''[' ']' <slice> ')'
+         | Identifier ':=' 'make' '(' '['']' '['']' Identifier ','<Vars> ')'
+         | Identifier ':=' <Expression>
+         | Identifier '['Identifier ']' '=' 'make' '(''['']' Identifier ','<Vars> ')'
+         | <copySlice>
+         | <sliceOperator>
+         |<Initialize1LineSlice>
+                
+<copySlice> ::= 'copy' '('Identifier ',' Identifier ')'
+<sliceOperator> ::= Identifier ':=' Identifier '[' Numeros ':' Numeros ']'
+                 | Identifier '=' Identifier '[' ':' Numeros ']'
+                 | Identifier '=' Identifier '[' Numeros ':' ']'
+                 
+                 
+<Initialize1LineSlice> ::= Identifier ':=' '['']'Identifier '{' <varsSliceList> '}'                     
+<varsSlice> ::= <vars> | StringLiteral
+<varsSliceList> ::= <varsSliceList> ',' <varsSlice> | <varsSlice>
 
-<pequenasfunnc> ::= <IdentifierList> '(' Indentifier ',' Identifier ')'
+!Identifier '=' Identifier '(' Identifier ',' StringLiteral ')'
+!| Identifier '=' Identifier '(' Identifier ',' StringLiteral ',' StringLiteral ')'
+!<pequenasfunnc> ::= <IdentifierList> '(' Indentifier ',' Identifier ')'
                  
 !Map-------------------------------------------completo!--------------------
 <map> ::= 'map' '[' Identifier ']' Identifier
@@ -266,5 +256,22 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 <ParameterMap> ::= StringLiteral ':' Numeros
 <ParameterMapList> ::=  <ParameterMapList>',' <ParameterMap>
                     |<ParameterMap>
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
