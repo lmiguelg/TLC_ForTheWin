@@ -67,7 +67,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 
 !Add more values to the rule below - as needed
 
-<Value>       ::= Identifier
+<Value>       ::= <IdentifierList>
                |  '(' <Expression> ')'<nl>
                | Identifier '=' <Value>
                | <PackageClause> <ImportDecl> <Value>
@@ -93,8 +93,15 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 !não é preciso String lit pq já existe 
               
 <printar> ::= Identifier '.' Identifier '(' <prints> ')'
+           |Identifier '.' Identifier '(' <boolean>')'
+           |Identifier ':=' Identifier '['Identifier']'Identifier '{'<ParameterMapList>'}'
        
- 
+<boolean> ::= Identifier '&&' Identifier
+            |Identifier '||' Identifier
+            |'!' Identifier           
+           
+
+
 <prints> ::= StringLiteral ',' <Expression>
           | <IdentifierList>
           | StringLiteral
@@ -105,6 +112,10 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
           |StringLiteral ',' <array>
           | StringLiteral ',' Identifier '(' Identifier ')'
           | <array> ',' Number
+          
+
+  
+         
 
 
 !Blocks-----------------------------------------------------
@@ -127,7 +138,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
              |<doispontos> <nl>
              |<slice> <nl>
              | <map> <nl>
-             | <map> 
+             | <map>
+             
                         
 !IF Statment----------------------------------------------
 <IfStatment> ::= IF <Expression> <Block> <nl> 
@@ -141,6 +153,10 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 <ForStm> ::= FOR <Expression> <Block>
           |FOR <Block>
           |FOR <Expression> ';' <Expression> ';' <IncDecStmt> <Block>
+          |FOR '_' ',' <Expression> <IdentifierList> <Block>
+          |FOR Identifier ',' <Expression><IdentifierList> <Block>
+          |FOR <Expression> Identifier <Block>
+          |FOR Identifier',' <Expression> StringLiteral <Block>
           
 !Switch Statment---------------------------------------------
 <SwitchStm> ::= 'switch' Identifier '{'<nl> <caseList> '}'
@@ -162,6 +178,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 <IncDecStmt> ::= <Vars> '++' | <Vars> '--'
               | <Vars> '=' <Vars> '+' <Vars>
               |  <Vars> '=' <Vars> '-' <Vars>
+              |  <Vars> '+=' <Vars> 
+              |  <Vars> '-=' <Vars>
               
 <Vars> ::= Identifier | Numeros            
 
@@ -203,7 +221,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
          | Identifier '[' Indentifier ']'
          | '[' ']' Identifier
          |'[' ']' Identifier '{' StringLiteral ',' StringLiteral ',' StringLiteral '}'    
-         | Identifier '[' Identifier ']' '=' <Expression>         
+         | Identifier '[' Identifier ']' '=' <Expression>
+         | Identifier ':=' '['Numeros']'Identifier '{'<varsSliceList> '}'         
 
 <Keyword> ::= 'break' | 'continue'
            
@@ -254,16 +273,19 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 <GetValue> ::= Identifier ':=' Identifier '['StringLiteral']'
 <Initialize1Line> ::= Identifier ':=' 'map' '[' Identifier ']' Identifier '{'<ParameterMapList> '}'
 <ParameterMap> ::= StringLiteral ':' Numeros
+                |StringLiteral ':' StringLiteral
 <ParameterMapList> ::=  <ParameterMapList>',' <ParameterMap>
                     |<ParameterMap>
                     
 
 
 
+!range-------------------------------------------------------------
 
 
 
 
+!Exit-----------------------------------------------------------------
 
 
 
