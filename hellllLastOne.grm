@@ -62,7 +62,9 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                | <Other Exp>'&^'<Value>
                | <Other Exp>'<-'<Value>
                | <Other Exp>'%'<Value> 
-               | <Other Exp>':='<Value>  
+               | <Other Exp>':='<Value> 
+               |'-' <Value>  
+               |'+' <Value> 
                | <Value> 
 
 !Add more values to the rule below - as needed
@@ -78,25 +80,32 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
                | <Type> <Value>
                | <a>
                |Identifier <Expression>
-               
-      
   
-               
+             
                        
 <Type> ::= <FunctionDecl><nl>
         |<StructDeclare><nl>        
-<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>                              
+<FunctionDecl> ::= 'func'Identifier <Parameters> <Block>   
+                |'func'Identifier <Parameters> <FunctionDecl>
+                | 'func' <Parameters> Identifier <Block> 
+                | 'func' <Parameters> <Parameters> Identifier  <Block>  
+                | 'func' <Parameters> <Block> '('StringLiteral ')'    
+                | 'func' <Parameters> <Block> '(' ')'                   
 
        
 <Parameters> ::= '('')'|'('<ParametersList>')'
               |'('<ParametersList>')' Identifier 
               |'('')' '('<IdentifierList>')' 
+              | '(' <ParametersList> ')' '(' <ParametersList> ')' 
+              
               
 <ParametersList> ::= <ParametersList> ',' Identifier 
                   |<ParametersList> ',' Identifier Identifier
                   |Identifier
                   |Identifier Identifier
                   |Identifier '*' Identifier 
+                  |Identifier Identifier Identifier 
+                  | Identifier '...'  Identifier 
                             
 !Package----------------------------------------------------------
 <PackageClause> ::= 'package' Identifier<nl>             
@@ -106,6 +115,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 !não é preciso String lit pq já existe 
               
 <printar> ::= Identifier '.' Identifier '(' <prints> ')'
+           |Identifier '.' Identifier '('')'
            |Identifier '.' Identifier '(' <boolean>')'
            |Identifier '.' Identifier '(' StringLiteral ',' <IdPointer> ')'
            |<IdentifierList> ':=' Identifier '['Identifier']'Identifier '{'<ParameterMapList>'}'
@@ -117,6 +127,16 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
            | Identifier '=' <vars>
            |<IdPointer> '=' <vars>
            |Identifier '('<IdPointer>')'
+           |Identifier ':=' <IdPointer>
+           |Identifier '.'Identifier '=' <vars>
+           |Identifier '<-' StringLiteral
+           |Identifier '.'Identifier '('Numeros '*' Identifier'.'Identifier')'
+           | Identifier ':=' '<-' Identifier 
+           | Identifier '<-' <vars> 
+           | '<-' Identifier 
+           
+           
+          
            
 <IdPointer> ::='*'Identifier
             |'&'Identifier
@@ -142,9 +162,11 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
           | Identifier '(' StringLiteral')'
           | <createStruct>
           | Identifier '(' ')' 
-          
+          | <nameFields>
+          | Identifier ',' StringLiteral ',' <vars>
+          | <IdentifierList> ',' '" "' 
+          |'<-' Identifier 
 
-  
          
 
 
@@ -170,6 +192,8 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
              | <map> <nl>
              | <map>
              |<pequenasfunnc> <nl>
+             |<acessStruct><nl>
+             | <Goroutine><nl>
        
          
                         
@@ -189,6 +213,7 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
           |FOR Identifier ',' <Expression><IdentifierList> <Block>
           |FOR <Expression> Identifier <Block>
           |FOR Identifier',' <Expression> StringLiteral <Block>
+          |FOR '_' ',' <Expression> <Block> 
           
 !Switch Statment---------------------------------------------
 <SwitchStm> ::= 'switch' Identifier '{'<nl> <caseList> '}'
@@ -291,15 +316,16 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 !| Identifier '=' Identifier '(' Identifier ',' StringLiteral ',' StringLiteral ')'
 <pequenasfunnc> ::= <IdentifierList> '(' Indentifier ',' Identifier ')'
                  |Identifier '('<Expression> ')'
-                 |<IdentifierList> '(' <IdentifierList> ')'!novo
+                 |<IdentifierList> '(' <IdentifierList> ')'
                  |<IdentifierList> '(' <NumberList>')'
                  |<IdentifierList> '(' ')'
-               
-                 
-                 
+                 |Identifier '(' Identifier '...' ')'
+             
 !Map-------------------------------------------completo!--------------------
 <map> ::= 'map' '[' Identifier ']' Identifier
        | Identifier ':=' 'make' '(' <map> ')'
+       | Identifier ':=' 'make' '(' <ParametersList> ')' 
+       |Identifier ':=' 'make' '(' <ParametersList> ',' Numeros')'
        | Identifier ':=' 'make' '(' <map> ',' Numeros ')'
        |<setName> <nl>
        |<GetValue>
@@ -322,23 +348,41 @@ Numeros = {Digit}+ |  {Digit}+ '.' {Digit}+ | {Digit}+ '.' | '.' {Digit}+
 
 !return--------------------------------
 
-<return> ::= 'return' <Expression>!novo
+<return> ::= 'return' <Expression>
           |'return' Identifier '*' Identifier '('<Expression>')'
-          !|'return' Identifier <Parameters> Identifier <Block>
-         ! | 'return' <NumberList>
+          |'return' <Expression> <erros>
 
+<erros> ::= ',' 'errors' '.' 'New' '(' StringLiteral ')'
+         | ',' 'nil' !erros
 
 
 !Structs---------------------------------------------------------------
-<StructDeclare> ::= Identifier Identifier 'struct' '{' <nl> <varStructList> '}'
+<StructDeclare> ::= Identifier Identifier Identifier '{' <nl> <varStructList> '}' 
+                 |Identifier Identifier Identifier '{' <nl><StructParametersList><nl> '}'               
 <varStruct> ::= Identifier Identifier <nl>
 <varStructList> ::= <varStructList> <varStruct>
                  |<varStruct>
 <createStruct> ::= Identifier '{'Identifier ',' <vars> '}'
                 | Identifier '{' StringLiteral ',' <vars> '}'
+<nameFields> ::= Identifier '{'<nameFieldsParametersList>'}'
+              |  <IdPointer> '{'<nameFieldsParametersList>'}'
+<nameFieldsParameters> ::= Identifier ':' StringLiteral
+                        | Identifier ':' <vars>             
+<nameFieldsParametersList> ::= <nameFieldsParametersList> ',' <nameFieldsParameters>
+                            |<nameFieldsParameters>
+                            
+<acessStruct> ::= Identifier ':=' <nameFields>
+               
+<StructParameters> ::= Identifier
+                    |Identifier Identifier
+                    |Identifier <Parameters> Identifier
+<StructParametersList> ::=<StructParametersList> ',' <StructParameters>
+                        | <StructParameters>
 
-                 
-
+!Goroutine------------------------------------------------------
+<Goroutine> ::= 'go ' <prints> 
+             | 'go ' <FunctionDecl> 
+             
 
 
 
